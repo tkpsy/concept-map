@@ -1,142 +1,110 @@
 # concept-map
 
-**AIに作ってもらったプロジェクトを、自分が説明し、変更を判断できるプロジェクトへ。**
+**Turn an AI-built project into a project you can explain and confidently change.**
 
-concept-map は、プロジェクトの全体像・仕様・未解決の論点を `docs/map/` にまとめる Agent Skill です。Codex と Claude Code で使えます。
+concept-map is an Agent Skill for Codex and Claude Code. It organizes a project's concepts, specifications, and unresolved questions into `docs/map/`.
 
-AIに実装を任せると、動くものができても「何があるか」「どう動くか」「なぜこうなったか」「何が未決定か」を理解しきれていないことがあります。この理解の遅れを、ここでは **理解負債** と呼びます。
+AI can produce a working project faster than you can understand what it contains, how it behaves, why decisions were made, and what remains undecided. We call that gap **comprehension debt**. This skill helps close it by building a map grounded in the project's documentation and implementation.
 
-概念マップを作り、実装や資料と照らしながら、自分が辿って説明できる状態に近づけます。
+The skill ships Markdown instructions and a worked example. It includes no executable scripts and requires no Python. The instructions are in English; generated maps use the user's or project's language.
 
-## できあがるもの
+## What you get
 
-対象プロジェクトの `docs/map/` に、1概念1ファイルで Markdown を置きます。
+One Markdown file per concept, connected as a tree:
 
-- 木を辿って、どんな概念があるかを把握する。
-- ノードを開いて、その概念の役割・現在の仕様を読む。
-- 必要なノードの「経緯」「論点」「罠」で、判断の理由や残っている課題を把握する。
-- コードのパスや issue の参照から、詳しく調べる場所に移る。
+- Follow branches to discover the concepts in the project.
+- Open a concept to read its role and current behavior.
+- Find decision rationale, open questions, and pitfalls where they matter.
+- Use implementation paths and issue references to investigate further.
 
-Obsidian で `docs/map/` を vault として開くと、親子関係がグラフになります。Markdown ファイルとして読むこともできます。
+Open `docs/map/` as an Obsidian vault to explore the graph, or read the Markdown files directly.
 
-たとえば、ログイン・ログアウト・パスワード再設定を「利用者を確認し、アカウントへのアクセスを管理する」とまとめ、その説明に「認証」という名前を付けます。
+For example, Login, Logout, and Password Reset share an explanation: "Verify users and manage access to their accounts." Give that explanation the name **Authentication**.
 
 ```mermaid
 graph TD
-    app[アプリ] --> auth[認証]
-    auth --> login[ログイン]
-    auth --> logout[ログアウト]
-    auth --> reset[パスワード再設定]
+    app[Task App] --> auth[Authentication]
+    auth --> login[Login]
+    auth --> logout[Logout]
+    auth --> reset[Password Reset]
 ```
 
-枝は仕様を探すための道順です。依存関係は各ファイルの本文に書きます。
-中間ノードの作り方と実際のファイルは、[導出と完成例](references/auth-example.md)にあります。
+The branches provide a path to specifications. Dependencies are described in each file's body. The [worked example](references/auth-example.md) shows how to find an intermediate concept and turn it into actual files.
 
-## 別の端末に入れる
+## Install on another machine
 
-### AIに頼む
+### Ask your agent
 
-別の端末の Codex または Claude Code で、次のように頼めます。
+In Codex or Claude Code, ask:
 
 ```text
-https://github.com/tkpsy/concept-map のスキルを、この端末で使えるようにインストールしてください。
-スキル本体はリポジトリ直下の SKILL.md、名前は concept-map です。
-references/ と scripts/ も含めて取得してください。
-Codex と Claude Code の両方から同じファイルを参照できるようにしてください。
-既に同名のスキルがある場合は、その内容と保存先を確認して扱ってください。
+Install the skill from https://github.com/tkpsy/concept-map on this machine.
+The skill is named concept-map; SKILL.md is at the repository root.
+Include references/ with SKILL.md.
+Let Codex and Claude Code read the same files.
+If this skill is already installed, inspect its contents and location before making changes.
 ```
 
-### 手動で入れる（macOS / Linux）
+### Install manually (macOS / Linux)
 
-Git が必要です。以下は、このスキルをまだ入れていない端末向けです。
-まず共通の保存先へ clone します。
+Requires Git. For a machine where the skill is not yet installed, clone it to a shared location:
 
 ```bash
 mkdir -p "$HOME/.local/share"
-git clone https://github.com/tkpsy/concept-map.git "$HOME/.local/share/concept-map"
+git clone --depth 1 https://github.com/tkpsy/concept-map.git "$HOME/.local/share/concept-map"
 ```
 
-次に、両方のツールの読み込み先からリンクします。既存の同名フォルダがある場合は、その場所を表示して残します。
+Link it from both tools' skill directories. If a destination already exists, this prints its location and leaves it in place:
 
 ```bash
 mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
 for concept_map_skills in "$HOME/.agents/skills" "$HOME/.claude/skills"; do
   if [ -e "$concept_map_skills/concept-map" ] || [ -L "$concept_map_skills/concept-map" ]; then
-    printf '既存の配置を確認してください: %s\n' "$concept_map_skills/concept-map"
+    printf 'Check the existing skill at: %s\n' "$concept_map_skills/concept-map"
   else
     ln -s "$HOME/.local/share/concept-map" "$concept_map_skills/concept-map"
   fi
 done
 ```
 
-配置先とリンクによる共有は、[Codex の公式ドキュメント](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills)と [Claude Code の公式ドキュメント](https://code.claude.com/docs/en/skills#choose-where-skills-load)に沿っています。追加後は新しい会話で使えます。候補に出なければアプリを再起動してください。
+These locations and symlink support follow the [Codex documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) and [Claude Code documentation](https://code.claude.com/docs/en/skills#choose-where-skills-load). Use the skill in a new conversation after installation. If it does not appear, restart the app.
 
-## 使う
+## Use
 
-対象プロジェクトを開き、Codex では次のように依頼します。
+Open the target project and ask Codex:
 
 ```text
 $concept-map
-このプロジェクトはAIに実装してもらったので、全体像を把握したいです。
-実装と設計書を確認して、docs/map/ に概念マップを作ってください。
-現在の仕様、判断の理由、未解決の論点が辿れるようにしてください。
+AI helped build this project, and I want to understand it.
+Read the implementation and design documents, then create a concept map in docs/map/.
+Make the current behavior, decision rationale, and unresolved questions easy to find.
 ```
 
-Claude Code では先頭を `/concept-map` にします。
+In Claude Code, replace the first line with `/concept-map`.
 
-既存のマップを育てるときにも使えます。
+To maintain an existing map:
 
 ```text
-concept-map を使って、今回の変更を既存の docs/map/ に反映してください。
-仕様が変わった概念と、解決した論点を更新してください。
+Use concept-map to reflect these changes in the existing docs/map/.
+Update the concepts whose behavior changed and the questions that were resolved.
 ```
 
-共有するのはこのスキルです。生成した `docs/map/` は、適用先のプロジェクトで管理します。
+The generated `docs/map/` belongs to the target project. Share this skill independently of the maps it creates.
 
-## 更新する
+## Update
 
-上の手順で入れた場合、共通の保存先を更新すると両方のツールに反映されます。
+If you installed using the instructions above, update the shared copy for both tools:
 
 ```bash
 git -C "$HOME/.local/share/concept-map" pull --ff-only
 ```
 
-別の場所へ clone した場合は、その保存先で実行してください。
+If you cloned elsewhere, use that location instead.
 
-## マップを検査する
+## What's included
 
-Python 3 が使える場合、同梱スクリプトで木の構造を確認できます。追加パッケージは不要です。
-対象プロジェクトのルートから実行します。
+- [SKILL.md](SKILL.md): Instructions and decision criteria for the agent, including completion checks.
+- [references/auth-example.md](references/auth-example.md): A worked example of grouping concepts, writing files, and recording open questions.
+- [LICENSE](LICENSE): MIT License.
 
-```bash
-python3 "$HOME/.local/share/concept-map/scripts/check_map.py" docs/map
-```
-
-root が一つ、各非 root の親が一つ、全ノードに到達できる、循環とリンク切れがないことを検査します。
-検査対象はこのスキルで使う `[[名前]]` 形式です。コード例内のリンクは除外し、同じ親子への複数の言及は一本と数えます。
-
-構造の検査に加えて、気になる仕様を root から探し、本文を実装と照らして確認します。マップがあるだけで、内容の正しさや理解を保証できるわけではありません。
-
-## 構成と開発
-
-スキルの中心は、AIが読む `SKILL.md` です。Markdown だけでも手順を伝えられます。
-このスキルでは、詳しい例と、繰り返し使う構造チェックを補助ファイルとして添えています。
-スキルを読み込むだけで Python が実行されるわけではなく、検査するときにAIや利用者が実行します。
-
-- [SKILL.md](SKILL.md)：AIが読む手順と判断基準。
-- [references/auth-example.md](references/auth-example.md)：認証を題材にした中間ノードの導出・完成例・論点の書き方。
-- [scripts/check_map.py](scripts/check_map.py)：作成した Markdown を読み、木構造を検査する補助ツール。ファイルの変更や外部通信は行いません。
-- [tests/test_check_map.py](tests/test_check_map.py)：検査スクリプトと掲載例を確認する開発用テスト。一時フォルダに検査用のファイルを作って実行し、終了時に片付けます。通常のスキル利用では実行不要です。
-
-概念を選び、名前を付け、仕様をまとめる作業はAIが行います。Pythonは構造の確認を補助します。
-Pythonが使えない環境では、`SKILL.md` の完了条件をファイルとリンクの一覧から確認できます。
-
-このリポジトリのルートでテストできます。
-
-```bash
-python3 -m unittest discover -s tests -v
-```
-
-## ライセンス
-
-[MIT License](LICENSE)。
+The agent checks links and the tree structure using the instructions in the skill, then checks the content against the project's evidence. No bundled program is needed to use it.

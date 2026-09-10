@@ -1,126 +1,119 @@
-# 認証：中間ノードの導出とファイル例
+# Authentication: finding an intermediate concept and writing its files
 
-架空のタスク管理アプリを使った例。動作・実装状態・論点・コードのパスは説明のための設定。
-実際のプロジェクトでは、その資料と実装から読み取れる概念を使う。
+This example uses a fictional task management app. Its behavior, implementation status, open questions, and code paths are illustrative. For a real project, derive concepts from its own documentation and implementation.
 
-## 「認証」ができるまで
+## How Authentication emerges
 
-まず、具体的な概念を動作まで説明する。
+Start by explaining concrete concepts and their behavior:
 
-- ログイン：利用者を確認し、自分のアカウントで利用を開始する。
-- ログアウト：その端末でのログイン状態を終了する。
-- パスワード再設定：パスワードを忘れた利用者が、設定し直す手続きを行う。この例では未実装。
+- **Login:** Verify the user and start an authenticated session.
+- **Logout:** End the session on the current device.
+- **Password Reset:** Help a user regain access after forgetting a password. Not implemented in this example.
 
-この三つは、「利用者はどうやって自分のアカウントにアクセスし、その利用を終えるか」という問いに答えている。
-まとめた説明は「利用者を確認し、アカウントへのアクセスを管理する」。
-この説明に **認証** という名前を付ける。既に通じる呼び名があれば、それを使える。
+Together, these answer: "How do users access their accounts and end that access?" A shared explanation is "Verify users and manage access to their accounts." Give this explanation the name **Authentication**. An established term works when it fits the explanation.
 
 ```text
-タスク管理アプリ
-└── 認証
-    ├── ログイン
-    ├── ログアウト
-    └── パスワード再設定
+Task App
+└── Authentication
+    ├── Login
+    ├── Logout
+    └── Password Reset
 ```
 
-ここで確認するのは、「ログインについて知りたい人が 認証 を開きそうか」。
-親の名前から子を探せ、親の説明から三つの子が並ぶ理由も分かる。
+Now check whether someone looking for Login would open Authentication. The parent's name suggests where to look, and its description explains why these three children belong together.
 
-## ファイルにすると
+## The resulting files
 
-認証の枝だけに範囲を絞った、五つのファイルで閉じる例。すべて `docs/map/` の直下に置く。
+This complete five-file example covers only the authentication branch. Put all five files directly under `docs/map/`.
 
-#### タスク管理アプリ.md
+### Task App.md
 
 ```markdown
-# タスク管理アプリ
+# Task App
 
-利用者がタスクを登録し、担当者や期限を管理するアプリ。
-このマップでは、アカウントへのアクセスに関わる仕様を説明する。
+An app where users create tasks and manage their assignees and deadlines.
+This map covers the specifications for accessing an account.
 
-- [[認証]]
+- [[Authentication]]
 ```
 
-#### 認証.md
+### Authentication.md
 
 ```markdown
-# 認証
+# Authentication
 
-利用者を確認し、アカウントへのアクセスを管理する。
-ログインとログアウトは実装済み。パスワード再設定は未実装。
+Verify users and manage access to their accounts.
+Login and Logout are implemented. Password Reset is not implemented.
 
-- [[ログイン]] [[ログアウト]] [[パスワード再設定]]
+- [[Login]]
+- [[Logout]]
+- [[Password Reset]]
 ```
 
-#### ログイン.md
+### Login.md
 
 ```markdown
-# ログイン
+# Login
 
-メールアドレスとパスワードで利用者を確認し、セッション を開始する。
-成功するとタスク一覧を表示する。
+Verify the user's email address and password, then start a Session.
+Show the task list after a successful login.
 
-src/auth/login.py
+src/auth/login/
 
-## 経緯
+## Rationale
 
-表示名を変更してもログイン方法に影響しないよう、表示名をログインの識別子には使っていない。
+Display names are editable, so they are not used as login identifiers.
+Changing a display name should not change how the user signs in.
 ```
 
-#### ログアウト.md
+### Logout.md
 
 ```markdown
-# ログアウト
+# Logout
 
-この端末での セッション を終了し、ログイン画面に戻る。
-別の端末のログイン状態は継続する。
+End the Session on the current device and return to the login screen.
+Sessions on other devices remain active.
 
-src/auth/logout.py
+src/auth/logout/
 ```
 
-#### パスワード再設定.md
+### Password Reset.md
 
 ```markdown
-# パスワード再設定
+# Password Reset
 
-未実装。パスワードを忘れた利用者が、自分で設定し直せるようにする予定。
+Not implemented. Intended to help users regain access after forgetting their password.
 
-## 論点
+## Open questions
 
-再設定の案内を メール送信 で本人に届けるか、管理者への申請を経由するか。
-利用者が自分で復旧できる範囲と、管理者が対応できる時間を確認して決める。
+Should users receive reset instructions through Email Delivery, or request help from an administrator?
+Decide based on the required scope of self-service recovery and administrator availability.
 
 example/task-app#22
 ```
 
-未実装の概念もファイルは存在するので、予定が見え、リンク切れにもならない。
-セッション と メール送信 は、動作や関連を説明するための言及として素の名前を書く。
-全体のマップでは、それぞれを読者が探しやすい枝に置く。
+A planned concept still has a file, making the plan visible and keeping the link valid. Session and Email Delivery appear as plain names because these mentions explain behavior and relationships. In a broader map, place their files under the branches where readers would look for them.
 
-## 同じ手順で「通知」を作る
+## Apply the same process to Notifications
 
-別の具体的な概念から始める。
+Start with another set of concrete concepts:
 
-- 期限リマインダー：期限が近づいたタスクを担当者に知らせる。
-- 担当変更の連絡：タスクの担当者が変わったことを関係者に知らせる。
+- **Deadline Reminders:** Tell assignees when their tasks are approaching a deadline.
+- **Assignment Changes:** Tell the people involved when a task's assignee changes.
 
-このまとまりは「対応が必要な変化を利用者に伝える」と説明できる。名前は **通知**。
+The shared explanation is "Inform users about changes that need their attention." Name it **Notifications**.
 
 ```text
-タスク管理アプリ
-└── 通知
-    ├── 期限リマインダー
-    └── 担当変更の連絡
+Task App
+└── Notifications
+    ├── Deadline Reminders
+    └── Assignment Changes
 ```
 
-名前を先に決めなくても、具体的な動作から共通する目的や役割を言葉にできる。
-すべてを同じ分類軸に揃える必要はなく、その場所で説明が通る観点を選ぶ。
+Concrete behavior can reveal a shared purpose or responsibility before you choose a name. Choose a perspective that makes each part of the map understandable; different branches can use different perspectives.
 
-## 親の候補が複数あるとき
+## When several parents seem plausible
 
-パスワード再設定は、認証とも、案内に使うメール送信とも関係する。
-このマップでは、「パスワードを忘れたときの手続き」を探す入口である 認証 に置く。
-メールをどう届けるかという詳細は メール送信 で説明し、本文から名前で言及する。
+Password Reset relates to Authentication and to the Email Delivery used to send instructions. In this map, place it under Authentication, where readers would look for the recovery procedure. Explain delivery details under Email Delivery and mention that name in the body.
 
-既存の木を育てるときは、読者が使っている入口も判断材料になる。
-別の親を選んでも説明が通る場合はある。選んだ道順で仕様を探せることを確かめる。
+When maintaining an existing tree, consider the entry points readers already use. Another parent might also be defensible. Check that the chosen path helps readers find the specification.

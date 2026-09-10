@@ -1,122 +1,93 @@
 ---
 name: concept-map
-description: AIが作ったプロジェクトの理解負債を解消する。全体像・仕様・未解決の論点を、1概念1ファイルの木として docs/map/ に作る・育てる・直す。「動くが中身を説明できない」「仕様や判断の場所が分からない」「設計書が大きすぎる」とき、概念の抽出・中間ノードの命名・親の選択に使う。Obsidian で辿れる概念マップを作る。
+description: Reduce comprehension debt in AI-built projects by creating and maintaining a concept map in docs/map/. Use when a project works but the user cannot explain it, specifications or decisions are hard to find, or design documents are too large. Organize concepts, current behavior, rationale, and open questions into a tree of Markdown files that can be explored in Obsidian.
 ---
 
-# 概念マップ（`docs/map/`）
+# Concept map (`docs/map/`)
 
-プロダクトの概念を **1概念1ファイル**で置き、**親から子への `[[リンク]]` でつないだ木**にする。
-Obsidian のグラフで「どんな概念が、どの話題の下にあるか」が分かり、ノードを開くと仕様が読める状態を作る。
-未実装の概念も、状態を明記したファイルとして置ける。
+Create **one Markdown file per concept**, connected by **parent-to-child `[[links]]` forming a tree**. Readers should be able to find a concept in the map, open its file, and understand its role, behavior, and unresolved questions.
 
-AIに実装を任せて、動作の把握や判断の理由が追いつかなくなったときに、**自分が説明し、変更を判断できる状態**を目指す。
-既存プロジェクトの理解が目的なら、資料と実装を読み、現在の仕様・理由・未解決の論点を該当する概念にまとめる。
+The goal is to help users explain a project and make informed changes, especially when AI implementation has outpaced their understanding. Ground the map in the project's documentation and implementation.
 
-## 基本の形
+Use the user's or project's language for names and content. The English examples in this skill do not determine the output language.
 
-1. **親子は、説明を辿るための道順。** プロダクト名の root を一つ置き、他のノードには親を一つ選ぶ。
-   「この概念は、どの話の詳細として紹介すると分かりやすいか」で置き場所を決める。
-2. **依存は本文に名前を書く。** 「パスワード再設定 は メール送信 を使う」のように書く。
-   `[[リンク]]` は親から子への案内に使う。依存まで線にすると、全体像を辿る枝が埋もれる。
-3. **ファイルは `docs/map/` 直下に並べる。** 階層はリンクで表す。日本語ファイル名でよい。
-   `[[ログイン]]` は `ログイン.md` を指す。`/login` のような名前はファイル名を `login.md`、見出しを正式名にする。
+## Basic structure
 
-## 中間ノードを見つける
+1. **Use parent-child relationships as a reading path.** Choose one root named after the product, and one parent for every other concept. Place a concept under the topic where readers would look for its details.
+2. **Describe dependencies in plain text.** Write "Password Reset uses Email Delivery." Reserve `[[links]]` for parent-to-child navigation so dependency edges do not obscure the reading path.
+3. **Keep concept files directly under `docs/map/`.** Links carry the hierarchy. `[[Login]]` points to `Login.md`. Names may use any language. For a name containing a path separator, such as `/login`, use `login.md` and keep the official name in its heading.
 
-**具体的な概念をまとめて説明する一文を作り、その文に名前を付ける。**
-新しい名前を付けてよい。子に共通する体験・目的・役割が伝わる名前にする。
+## Find intermediate concepts
 
-1. **具体的な概念を短く説明する。** 名前に加えて「何がどう動くか」を書く。
-   例：ログイン＝利用者を確認して利用を開始する、ログアウト＝利用を終了する、パスワード再設定＝忘れたパスワードを設定し直す。
-2. **一緒に説明すると分かりやすいものを集め、一文にまとめる。**
-   この例なら「利用者を確認し、アカウントへのアクセスを管理する」。これが親の説明になる。
-3. **説明に短い名前を付ける。** この例では「認証」。既存の呼び名が説明に合えば使う。
-   「仕組み」だけで内容を予想しにくければ、何をする仕組みなのかまで名前に含める。
-4. **名前から子を探せるか、親の説明から子の並びを理解できるか確かめる。**
-   「ログインの仕様を知りたい人が、認証を開きそうか」を考える。
-   辿りにくければ名前かまとめ方を調整する。まとまりが見つからない概念は、今の親の直下に置いてよい。
+**Write a sentence that explains several concrete concepts together, then name that sentence.** A new name is useful when it communicates their shared experience, purpose, or responsibility.
 
-まとめる観点は、その場所の説明に合わせる。「認証」はアクセスを管理する目的、「通知」は変化を利用者に伝える役割から作れる。
-UI・実行プロセス・サービスなど、既に分かりやすいまとまりも使える。
-同じディレクトリにあることや、同じ技術を使うことだけで親子が決まるわけではない。
+1. **Explain each concrete concept briefly.** Include what it does: Login starts an authenticated session, Logout ends it, and Password Reset helps a user regain access after forgetting a password.
+2. **Group concepts that make sense to explain together.** Summarize them in one sentence: "Verify users and manage access to their accounts." This becomes the parent's description.
+3. **Give the description a short name.** Here, "Authentication" works. Use an established term when it fits. If a label such as "Mechanisms" tells readers little, name what those mechanisms accomplish.
+4. **Check the reading path.** Would someone looking for Login open Authentication? Does the parent's description explain why those children belong together? Adjust the name or grouping if needed. Concepts without a useful grouping can stay directly under their current parent.
 
-親の候補が複数あるときは、**読者がその仕様を探す入口**を一つ選ぶ。他の関係は本文に名前を残す。
-例えば「パスワードを忘れたときの手続き」は 認証、「メールをどう届けるか」は メール送信 で説明できる。
-両者が関係していても、すべてを同じ枝の下に入れる必要はない。
+Choose the perspective that makes sense at that point in the map. Authentication groups an access-related purpose; Notifications groups the responsibility of informing users about changes. Familiar screens, processes, and services can also provide useful groupings. Sharing a directory or technology alone does not determine a parent.
 
-初めて作るときや中間ノードに迷ったときは、[認証の導出とファイル例](references/auth-example.md)を読む。
-完成した木だけでなく、具体的な概念から親を作る過程を示している。
+When several parents seem plausible, choose **the entry point readers would use to find the specification**. Mention other relationships in the body. For example, the password recovery procedure belongs under Authentication, while email delivery details can be explained elsewhere.
 
-## ノードの本文を書く
+When creating a first map or choosing an intermediate concept, read the [worked authentication example](references/auth-example.md). It shows the reasoning and the resulting files.
 
-見出しに概念名、冒頭に**その概念の役割と現在の動作**を短く書く。中間ノードでは、子に共通する説明を書く。
-既存資料は実装や現行仕様と照らし、確認できた内容を使う。食い違いや未確認の点は、そのまま明記する。
-未実装なら「未実装。予定している役割は〜」と書き、現在の動作と予定を区別する。
+## Write a concept file
 
-説明の後に、必要な内容だけ足す。全ノードで同じ見出しを埋める必要はない。
+Start with the concept's name as a heading, followed by a short explanation of **its role and current behavior**. For an intermediate concept, explain what its children have in common.
 
-- `## 経緯`：理由を知らないと誤解や不用意な変更につながる判断。
-- `## 論点`：まだ決めていないこと。何を判断する必要があり、分かっている選択肢や判断材料は何かを短く書く。
-  決まったら現在の仕様に反映し、残す理由がある場合だけ経緯に移す。
-- `## 罠`：踏むと黙って壊れるところ。
+Check existing documents against the implementation or current specification. Mark contradictions and unverified details explicitly. Give planned concepts their own files, starting with "Not implemented. Intended to..." so readers can distinguish current behavior from plans.
 
-未調査で分からないことは「未確認」として扱う。既に決まった仕様を、読み手が知らないという理由で論点に戻さない。
+Add sections only when they have useful content:
 
-経緯は、旧ドキュメントやログに誤解の種が残っている場合、または一見おかしく見える設計に理由がある場合に書く。
-決定や論点は、関係する生きた概念の本文で管理する。置き換えた判断は、置き換え先の概念に短く残す。
+- **Rationale:** Decisions whose reasons prevent misunderstanding or an ill-informed change. Include relevant history when outdated documents remain misleading or an unusual design has a reason worth preserving.
+- **Open questions:** What still needs a decision, the known options, and the information needed to choose. Once resolved, update the current specification and keep rationale only where useful.
+- **Pitfalls:** Behavior that can fail silently or surprise someone making a change.
 
-参照は次の形を使う。コードのパスは対象プロジェクトのルートからの位置を書く。
+Mark a gap in your investigation as "Unverified." A decision already made by the project does not become an open question just because the reader has not learned about it yet.
+
+Keep decisions and questions with the living concepts they concern. When one approach replaces another, preserve necessary rationale with the replacement concept.
+
+Use these reference forms; code paths are relative to the target project's root:
 
 ```text
-[[名前]]        親から子へのリンク。対象は直下の 名前.md
-素の概念名       依存や関連の説明  メール送信 を使う
-素のパス         コードの場所      src/auth/  src/mail.py
-owner/repo#n    issue            example/task-app#27
+[[Name]]              Parent-to-child link to Name.md
+Plain concept name    Dependencies and related topics: uses Email Delivery
+Plain path            Implementation location: src/auth/ or src/email/
+owner/repo#n          Issue: example/task-app#27
 ```
 
-## 立ち上げる
+## Create a map
 
-1. **対象と資料を確認する。** 既存のマップ、プロダクト説明、設計書、`CLAUDE.md` / `AGENTS.md`、必要な実装を読む。
-   どのプロダクト・範囲の全体像を作るかを定める。
-2. **プロダクトを説明する短い文章を書く。** 3〜5文程度から始め、具体的な概念とその役割を取り出す。
-   説明から抜けた重要な概念は、資料に戻って補う。
-3. **中間ノードを作り、親を選ぶ。** 上の手順で具体的な説明をまとめ、root から細部へ辿れる木にする。
-   ノード数や深さを合わせるために、概念を増やす必要はない。
-4. **各ファイルを書く。** 冒頭の説明を作った後、既存資料の仕様・注意事項・必要な経緯を該当ノードへ移す。
-   未実装の概念にもファイルを作る。未文書化なら、その状態と分かっている役割を書く。
-   読んだ資料や実装から分かった未決定事項は該当ノードの論点に置き、資料間の食い違いは未確認として残す。
-5. **構造と探しやすさを確認する。** 下の完了確認を行い、Obsidian が使える環境ではグラフでも辿ってみる。
-6. **仕様への入口を揃える。** `CLAUDE.md` / `AGENTS.md` や既存の案内から `docs/map/` を指す。
-   重複する仕様は移行先を確認して整理し、作業上の指示は案内ファイルに残す。
+1. **Establish the scope and evidence.** Read any existing map, product description, design documents, `CLAUDE.md` / `AGENTS.md`, and relevant implementation. Identify the product or area being mapped.
+2. **Explain the product in a short paragraph.** Start with roughly three to five sentences. Extract concrete concepts and their roles, then return to the evidence to fill important gaps.
+3. **Find intermediate concepts and choose parents.** Apply the process above to build a reading path from the product to its details. Let the content determine the number of nodes and the depth.
+4. **Write the files.** Establish each concept's opening explanation, then move relevant specifications, cautions, and rationale from existing documents. Create files for planned concepts too. Record known open decisions with their concepts and mark conflicting evidence as unverified.
+5. **Check structure and findability.** Follow the completion checks below. If Obsidian is available, explore the map in graph view as well.
+6. **Connect the documentation entry points.** Point existing guides and `CLAUDE.md` / `AGENTS.md` to `docs/map/`. Consolidate duplicate specifications after checking their destinations, while keeping working instructions in the instruction files.
 
-## 育てる
+## Maintain a map
 
-- **追加**：役割を一文で書き、探しそうな親からリンクする。関連 issue はその概念の本文に置く。
-- **親の変更**：旧親のリンクを新親へ移し、両方の説明が今の子に合うか確認する。
-- **改名・統合**：親からのリンクと、他ノードの本文中の言及を更新する。必要な経緯は存続する概念へ移す。
-- **仕様変更・実装完了**：冒頭の説明と未実装・未確認の記述を更新する。
-- **枝が多く探しにくい**：共通する説明を作れる子があるか見直す。数だけでは中間ノードの要否は決まらない。
+- **Add a concept:** Explain its role and link to it from the parent readers would try first. Reference relevant issues in its body.
+- **Change a parent:** Move the link from the old parent to the new one, then check that both descriptions still fit their children.
+- **Rename or merge:** Update incoming links and plain-text mentions. Preserve necessary rationale with the surviving concept.
+- **Change behavior or finish implementation:** Update the opening description and any implementation-status or open-question notes.
+- **Improve a crowded branch:** Look for children that share a useful explanation. Child count alone does not establish the need for another intermediate concept.
 
-issue と概念の粒度は一致しなくてよい。一つの issue を複数の概念から参照できる。
+Issue scope and concept scope can differ. One issue may be referenced by several concepts.
 
-## 完了を確認する
+## Check completion
 
-構造は同梱の [scripts/check_map.py](scripts/check_map.py) で確認する。Python 3 の標準ライブラリだけで動く。
-これは、指定したディレクトリの Markdown を読む検査用の補助ツール。概念の選択や命名は、上の手順に沿って行う。
-次の `/path/to/...` を、読み込んだスキルと対象プロジェクトの実際のパスに置き換えて実行する。
+Read the concept files and their links to check the structure:
 
-```bash
-python3 /path/to/concept-map/scripts/check_map.py /path/to/project/docs/map
-```
+- All concept files are directly under `docs/map/`, and every `[[Name]]` resolves to a file there.
+- There is one root with no parent; every other concept has exactly one parent.
+- Following child links from the root reaches every concept, without cycles.
 
-検査対象は、直下の Markdown ファイルと本文の `[[名前]]`。コード内の記法例は除外し、同じ親子への複数回の言及は一本と数える。
-root が一つ、各非 root の親が一つ、全ノードに到達できる、循環とリンク切れがない、を確認する。
-`N` ノードで `N-1` 本は必要条件だが、それだけで木とは判定しない。
-実行環境がなければ、同じ条件をファイルとリンクの一覧から確認する。
+Count repeated mentions of the same parent-child relationship as one edge, and ignore link syntax inside code examples. A tree with `N` nodes has `N-1` edges, but that count alone does not prove the structure is a tree.
 
-内容は、対象を知らない読者が知りそうな具体的な仕様をいくつか選び、root から探して確認する。
-親の名前から行き先を予想でき、開いたノードに役割・動作・未確定の状態が書かれていればよい。
-理解のための依頼では、主要な枝を辿る短い案内を添え、どこに未解決の論点があるかも示す。
-形の検査は内容の正しさを保証しないため、仕様の記述は確認に使った資料・実装と照らす。
+Then choose a few concrete specifications a reader might seek and follow the path from the root. Check that parent names suggest where to go, and the destination explains the concept's role, behavior, and any uncertainty. Compare those statements with the evidence used to write them.
 
-一人〜少人数、一つのプロダクト、数十概念での運用を想定している。依存関係の網羅や大規模な分類体系が主目的なら、目的に合う別の表現を選ぶ。
+For a request focused on understanding, provide a short tour of the main branches and point out where unresolved questions live.
+
+This approach targets one product with a few dozen concepts, maintained by an individual or small team. If exhaustive dependency tracing or a large classification system is the main goal, choose a representation suited to that purpose.
