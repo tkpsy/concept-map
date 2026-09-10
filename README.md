@@ -30,7 +30,7 @@ graph TD
 ```
 
 枝は仕様を探すための道順です。依存関係は各ファイルの本文に書きます。
-中間ノードの作り方と実際のファイルは、[導出と完成例](references/sns-example.md)にあります。
+中間ノードの作り方と実際のファイルは、[導出と完成例](references/auth-example.md)にあります。
 
 ## 別の端末に入れる
 
@@ -119,10 +119,17 @@ root が一つ、各非 root の親が一つ、全ノードに到達できる、
 
 ## 構成と開発
 
+スキルの中心は、AIが読む `SKILL.md` です。Markdown だけでも手順を伝えられます。
+このスキルでは、詳しい例と、繰り返し使う構造チェックを補助ファイルとして添えています。
+スキルを読み込むだけで Python が実行されるわけではなく、検査するときにAIや利用者が実行します。
+
 - [SKILL.md](SKILL.md)：AIが読む手順と判断基準。
-- [references/sns-example.md](references/sns-example.md)：中間ノードの導出・完成例・論点の書き方。
-- [scripts/check_map.py](scripts/check_map.py)：木構造の検査。
-- [tests/test_check_map.py](tests/test_check_map.py)：検査スクリプトと掲載例のテスト。
+- [references/auth-example.md](references/auth-example.md)：認証を題材にした中間ノードの導出・完成例・論点の書き方。
+- [scripts/check_map.py](scripts/check_map.py)：作成した Markdown を読み、木構造を検査する補助ツール。ファイルの変更や外部通信は行いません。
+- [tests/test_check_map.py](tests/test_check_map.py)：検査スクリプトと掲載例を確認する開発用テスト。一時フォルダに検査用のファイルを作って実行し、終了時に片付けます。通常のスキル利用では実行不要です。
+
+概念を選び、名前を付け、仕様をまとめる作業はAIが行います。Pythonは構造の確認を補助します。
+Pythonが使えない環境では、`SKILL.md` の完了条件をファイルとリンクの一覧から確認できます。
 
 このリポジトリのルートでテストできます。
 

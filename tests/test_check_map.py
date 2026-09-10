@@ -29,10 +29,10 @@ class MapCheckTests(unittest.TestCase):
         self.assertEqual(self.check_files({"root.md": "# root"}), ([], "root", 1, 0))
 
     def test_complete_documentation_example(self):
-        reference = (ROOT / "references/sns-example.md").read_text(encoding="utf-8")
+        reference = (ROOT / "references/auth-example.md").read_text(encoding="utf-8")
         files = dict(re.findall(r"^#### ([^\n]+\.md)\n\n```markdown\n(.*?)\n```", reference, re.M | re.S))
         self.assertEqual(len(files), 5)
-        self.assertEqual(self.check_files(files), ([], "分身SNS", 5, 4))
+        self.assertEqual(self.check_files(files), ([], "タスク管理アプリ", 5, 4))
 
     def test_duplicate_mentions_code_and_unimplemented_node(self):
         files = {
